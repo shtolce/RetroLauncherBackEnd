@@ -86,7 +86,7 @@
                                         <TextBlock MaxWidth="500" HorizontalAlignment="Left" Foreground="#FFBCBCBC" FontSize="14" Text="{Binding Path=SecondName}" VerticalAlignment="Center" />
                                         <TextBlock Margin="0,3,0,0" Foreground="#FF6C5858" FontSize="14" Text="{Binding Path=Genre}" VerticalAlignment="Center" />
                                         <TextBlock Foreground="#FF68586C" FontSize="14" Text="{Binding Path=Year}" VerticalAlignment="Center" />
-                                        <TextBlock Foreground="#FF6E6B94" FontSize="14" Text="{Binding Path=Platform}" VerticalAlignment="Center" />
+                                        <TextBlock Foreground="#FF6E6B94" FontSize="14" Text="{Binding Path=Platform.PlatformName}" VerticalAlignment="Center" />
                                     </StackPanel>
 
                                     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom"
