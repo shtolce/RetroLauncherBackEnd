@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using WebApiRL.Model;
 using WebApiRL.Services;
 
@@ -14,22 +13,20 @@ namespace WebApiRL.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private IConfiguration Config;
         private ObservableCollection<Game> _games;
-        public ValuesController(IConfiguration config)
+        private RepositoryBase _repositoryBase;
+        public ValuesController(RepositoryBase repositoryBase)
         {
-            _games = new ObservableCollection<Game>(Services.RepositoryBase.GetGamesAsync(config).Result.Distinct());
-
-            this.Config = config;
-
-
+            _repositoryBase = repositoryBase;
         }
         
         // GET api/values
         [HttpGet]
         public ObservableCollection<Game> Get()
         {
-            
+            _games = new ObservableCollection<Game>(_repositoryBase.GetGamesAsync().Result.Distinct());
+            Response.Headers.Add("testValue", "120");
+            Response.Cookies.Append("testValue", "120");
             return _games;
         }
 

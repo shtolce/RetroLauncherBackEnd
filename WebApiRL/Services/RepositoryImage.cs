@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,21 +7,28 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using WebApiRL;
 
-namespace WebApiRL.Services
+namespace RetroLauncher.Services
 {
-    class RepositoryImage
+    public class RepositoryImage
     {
-        static string token = "AgAAAAAGq9GCAAXRAb30qVKOiEknksyK2vlHa2E";
-        static string  APP_PATH = "https://cloud-api.yandex.net";
+        private readonly string Token;// = "AgAAAAAGq9GCAAXRAb30qVKOiEknksyK2vlHa2E";
+        private readonly string ApiHost;// = "https://cloud-api.yandex.net";
+        private  readonly HttpClient _client;
+        private IConfiguration _config;
 
-        private static HttpClient CreateClient()
+        public  RepositoryImage()
         {
-            var client = new HttpClient();
-            if (!string.IsNullOrWhiteSpace(token))            
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", token);
-            
-            return client;
+            _config = Startup.Configuration;
+            Token = _config["Token"];
+            ApiHost = _config["ApiHost"];
+
+
+            //            ApplicationServices.GetService<IMessageSender>();
+            var _client = new HttpClient();
+            if (!string.IsNullOrWhiteSpace(Token))
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", Token);
         }
 
 
@@ -29,13 +37,13 @@ namespace WebApiRL.Services
         /// </summary>
         /// <param name="file">Название файла</param>
         /// <returns>true если запрос выполнен успешно</returns>
-        public static async Task<string> GET(string file)
+        public async Task<string> GetFileDirectUrl(string file)
         {
-            using (var client = CreateClient())
+            using (var response = await _client.GetAsync(ApiHost + "/v1/disk/resources/download?path=RetroLauncherFiles/" + file))
             {
-                var response = await client.GetAsync(APP_PATH + "/v1/disk/resources/download?path=RetroLauncherFiles/" + file);
                 var urlResult = await response.Content.ReadAsStringAsync();
                 var loadjson = JsonConvert.DeserializeObject<Dictionary<string, string>>(urlResult);
+
                 return loadjson["href"];
             }
         }

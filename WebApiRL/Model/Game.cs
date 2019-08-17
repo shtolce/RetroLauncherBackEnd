@@ -1,10 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using RetroLauncher.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using GalaSoft.MvvmLight.Ioc;
 
 namespace WebApiRL.Model
 {
@@ -25,6 +30,17 @@ namespace WebApiRL.Model
         public string Developer { get; set; }
 
         string annotation;
+
+        private RepositoryImage _serviceImg;
+
+
+        //public Game(RepositoryImage serviceImg)
+        public Game()
+        {
+            //_serviceImg = serviceImg;
+            _serviceImg = SimpleIoc.Default.GetInstance<RepositoryImage>();
+        }
+
         public string Annotation
         {
             get { return annotation; }
@@ -44,6 +60,7 @@ namespace WebApiRL.Model
         }
 
         private string imgUrl;
+
         public string ImgUrl
         {
             get
@@ -51,7 +68,8 @@ namespace WebApiRL.Model
                
                 if (GameLinks != null && string.IsNullOrEmpty(imgUrl))
                 {
-                    TaskAwaiter<string> awaiter = Services.RepositoryImage.GET(GameLinks.Where(lnk => lnk.TypeUrl == TypeUrl.MainScreen).FirstOrDefault().Url).GetAwaiter();
+                    var file = GameLinks.Where(lnk => lnk.TypeUrl == TypeUrl.MainScreen).FirstOrDefault().Url;
+                    TaskAwaiter<string> awaiter = _serviceImg.GetFileDirectUrl(file).GetAwaiter();
                     awaiter.OnCompleted(() =>
                     {
                         imgUrl = awaiter.GetResult();

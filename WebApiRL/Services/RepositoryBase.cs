@@ -10,19 +10,22 @@ using Microsoft.Extensions.Configuration;
 
 namespace WebApiRL.Services
 {
-    class RepositoryBase
+    public class RepositoryBase
     {
-        private static string _connectionString;// = "Data Source=library_base.sqlite;Version=3;";
-
-
+        private string _connectionString;// = "Data Source=library_base.sqlite;Version=3;";
+        private IConfiguration _config;
+        public RepositoryBase()
+        {
+           _config = Startup.Configuration;
+           _connectionString = _config["connectionString"];
+        }
 
         /// <summary>
         /// Получить компактный список игры, без привязки ссылок и аннотации
         /// </summary>
         /// <returns></returns>
-        public static async Task<IEnumerable<Game>> GetGamesShortAsync()
+        public async Task<IEnumerable<Game>> GetGamesShortAsync()
         {
-            Console.WriteLine(_connectionString);
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 //списко игр для уникальности               
@@ -48,9 +51,8 @@ namespace WebApiRL.Services
         /// Получить список игр 
         /// </summary>
         /// <returns></returns>
-        public static async Task<IEnumerable<Game>> GetGamesAsync(IConfiguration config)
+        public  async Task<IEnumerable<Game>> GetGamesAsync()
         {
-            _connectionString = config["connectionString"];
 
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -92,7 +94,7 @@ namespace WebApiRL.Services
         /// Получить одну игру по Id
         /// </summary>
         /// <returns></returns>
-        public static async Task<Game> GetGameByIdAsync(int gameId)
+        public async Task<Game> GetGameByIdAsync(int gameId)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
