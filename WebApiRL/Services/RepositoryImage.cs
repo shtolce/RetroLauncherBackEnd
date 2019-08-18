@@ -21,12 +21,9 @@ namespace RetroLauncher.Services
         public  RepositoryImage()
         {
             _config = Startup.Configuration;
-            Token = _config["Token"];
+            Token   = _config["Token"];
             ApiHost = _config["ApiHost"];
-
-
-            //            ApplicationServices.GetService<IMessageSender>();
-            var _client = new HttpClient();
+            _client = new HttpClient();
             if (!string.IsNullOrWhiteSpace(Token))
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", Token);
         }
@@ -39,6 +36,7 @@ namespace RetroLauncher.Services
         /// <returns>true если запрос выполнен успешно</returns>
         public async Task<string> GetFileDirectUrl(string file)
         {
+
             using (var response = await _client.GetAsync(ApiHost + "/v1/disk/resources/download?path=RetroLauncherFiles/" + file))
             {
                 var urlResult = await response.Content.ReadAsStringAsync();
@@ -46,6 +44,7 @@ namespace RetroLauncher.Services
 
                 return loadjson["href"];
             }
+
         }
     }
 }

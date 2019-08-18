@@ -39,6 +39,7 @@ namespace WebApiRL.Model
         {
             //_serviceImg = serviceImg;
             _serviceImg = SimpleIoc.Default.GetInstance<RepositoryImage>();
+
         }
 
         public string Annotation
@@ -69,11 +70,15 @@ namespace WebApiRL.Model
                 if (GameLinks != null && string.IsNullOrEmpty(imgUrl))
                 {
                     var file = GameLinks.Where(lnk => lnk.TypeUrl == TypeUrl.MainScreen).FirstOrDefault().Url;
+                    
                     TaskAwaiter<string> awaiter = _serviceImg.GetFileDirectUrl(file).GetAwaiter();
                     awaiter.OnCompleted(() =>
                     {
                         imgUrl = awaiter.GetResult();
                     });
+                    
+                    //var awaiter = _serviceImg.GetFileDirectUrl(file).Result;
+                    //imgUrl = awaiter;
                 }
                 return imgUrl;
             }

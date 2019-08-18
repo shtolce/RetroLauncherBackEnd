@@ -64,7 +64,8 @@ namespace WebApiRL.Services
                             JOIN rl_genres gnr ON gnr.genre_id = gb.genre_id
                             JOIN rl_platforms pl ON gb.platform_id = pl.platform_id
                             JOIN rl_game_link lnk ON lnk.game_id = gb.game_id
-                            limit 10";
+                            limit 10
+                            ";
 
                 connection.Open();
                 var games = await connection.QueryAsync<Game, Platform, GameLink, Game>
@@ -130,6 +131,76 @@ namespace WebApiRL.Services
 
             }
         }
+        //Димас и тарас
+        /// <summary>
+        /// Получить список игр 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Game>> GetGamesAsync(int pageNumber, int itemsPerPage,  Filter filter)
+        {
+
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                //списко игр для уникальности
+                var gameDictionary = new Dictionary<int, Game>();
+                var sql = @"select 
+                                gb.game_id as GameId, gb.game_name as Name, gb.name_second as NameSecond, gb.name_other as NameOther, 
+                                gnr.genre_name as Genre, gb.year, gb.developer, gb.annotation, 
+                                pl.platform_id as PlatformId, pl.platform_name as PlatformName, pl.platform_alias as Alias, 
+                                lnk.link_id as LinkId, lnk.url_alter as Url, lnk.type_url as TypeUrl
+                            FROM 
+                                (select * from rl_games_base limit 10 offset 1) gb
+                            JOIN 
+                                rl_genres gnr ON gnr.genre_id = gb.genre_id
+                            JOIN 
+                                rl_platforms pl ON gb.platform_id = pl.platform_id
+                            JOIN 
+                                rl_game_link lnk ON lnk.game_id = gb.game_id
+                            ";
+
+                connection.Open();
+                var games = await connection.QueryAsync<Game, Platform, GameLink, Game>
+                    (sql, (game, platform, gamelink) =>
+                    {
+                        //проверям есть ли списка уже
+                        Game gameEntry;
+                        if (!gameDictionary.TryGetValue(game.GameId, out gameEntry))
+                        {
+                            gameEntry = game;
+                            gameEntry.GameLinks = new List<GameLink>();
+                            gameDictionary.Add(gameEntry.GameId, gameEntry);
+                        }
+
+                        gameEntry.Platform = platform;
+                        gameEntry.GameLinks.Add(gamelink);
+                        return gameEntry;
+                    }, splitOn: "PlatformId,LinkId");
+                return games;
+
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 }

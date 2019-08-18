@@ -9,7 +9,7 @@ using WebApiRL.Services;
 
 namespace WebApiRL.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
@@ -22,9 +22,9 @@ namespace WebApiRL.Controllers
         
         // GET api/values
         [HttpGet]
-        public ObservableCollection<Game> Get()
+        public async Task<ObservableCollection<Game>> GetAll()
         {
-            _games = new ObservableCollection<Game>(_repositoryBase.GetGamesAsync().Result.Distinct());
+            _games = new ObservableCollection<Game>((await _repositoryBase.GetGamesAsync()).Distinct());
             Response.Headers.Add("testValue", "120");
             Response.Cookies.Append("testValue", "120");
             return _games;
@@ -32,10 +32,14 @@ namespace WebApiRL.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public async Task<Game> Get(int id)
         {
-            return "value";
+            Game _game = await _repositoryBase.GetGameByIdAsync(id);
+            Response.Headers.Add("testValue", "120");
+            Response.Cookies.Append("testValue", "120");
+            return _game;
         }
+
 
         // POST api/values
         [HttpPost]
